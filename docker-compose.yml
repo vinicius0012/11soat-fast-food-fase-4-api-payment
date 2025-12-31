@@ -1,0 +1,38 @@
+version: '3.8'
+
+volumes:
+  mongodata:
+services:
+  db:
+    image: mongo:latest
+    restart: always
+    env_file:
+      - .env
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_USERNAME:-admin}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD:-password}
+      MONGO_INITDB_DATABASE: ${MONGO_DATABASE:-payment_service}
+    ports:
+      - '27017:27017'
+    networks:
+      - webhook_clean-architecture-network
+    volumes:
+      - mongodata:/data/db
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file: .env
+    depends_on:
+      - db
+    ports:
+      - '1337:1337'
+    networks:
+      - webhook_clean-architecture-network
+    command: >
+      sh -c "sleep 10 && npm run start:dev"
+
+networks:
+  webhook_clean-architecture-network:
+    external: true
