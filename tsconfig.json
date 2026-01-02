@@ -17,21 +17,5 @@
     "noImplicitAny": false,
     "strictBindCallApply": false,
     "noFallthroughCasesInSwitch": false
-  },
-  "include": [
-    "src/**/*",
-    "app/**/*",
-    "lib/**/*",
-    "core/**/*",
-    "domain/**/*",
-    "application/**/*",
-    "infrastructure/**/*"
-  ],
-  "exclude": [
-    "node_modules",
-    "dist",
-    "coverage",
-    "**/*.spec.ts",
-    "**/*.test.ts"
-  ]
+  }
 }
