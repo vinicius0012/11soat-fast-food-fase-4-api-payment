@@ -124,14 +124,15 @@ export class PaymentGateway implements PaymentServicePort {
         });
       }
 
-      const paymentStatus = response.data as PaymentStatusResponse;
+      const paymentStatus =
+        response.data as PaymentExternalResponseDataInterface;
 
       await this.paymentRepository.updateStatus(
         data.transactionId,
-        paymentStatus.status as string,
+        paymentStatus.status,
       );
 
-      return paymentStatus;
+      return PaymentMapper.toDomain(paymentStatus);
     } catch (error) {
       if (error instanceof AppError) {
         throw error;

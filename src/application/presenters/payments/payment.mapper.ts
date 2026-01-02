@@ -35,7 +35,7 @@ export class PaymentMapper {
       status: mapToDomainPaymentStatus(data.status as PaymentExternalStatus),
       amount: data.transaction_amount,
       urlPayment: data.point_of_interaction?.transaction_data?.ticket_url ?? '',
-      items: [],
+      items: data.items,
       qrCodeString: data.point_of_interaction?.transaction_data?.qr_code ?? '',
       qrCodeBase64:
         data.point_of_interaction?.transaction_data?.qr_code_base64 ?? '',
