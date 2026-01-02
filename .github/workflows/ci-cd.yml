@@ -51,14 +51,18 @@ jobs:
 
       - run: npm ci
 
-      - name: Run tests with coverage
+      - name: Run tests with coverage (lcov)
         run: yarn test:coverage
 
       - name: Upload coverage reports
         uses: actions/upload-artifact@v4
         with:
           name: coverage-reports
-          path: coverage/
+          path: |
+            coverage/lcov.info
+            coverage/lcov-report
+            coverage/coverage-final.json
+            coverage/clover.xml
 
   sonarcloud:
     name: SonarCloud Analysis
@@ -73,17 +77,17 @@ jobs:
         with:
           fetch-depth: 0
 
-      # Baixa na raiz para manter coverage/lcov.info exatamente no lugar esperado
       - uses: actions/download-artifact@v4
         with:
           name: coverage-reports
-          path: .
+          path: coverage
 
       - name: Debug coverage path
         run: |
+          echo "PWD=$(pwd)"
           echo "Listing coverage folder:"
           ls -la coverage || true
-          echo "First lines of lcov:"
+          echo "First lines of coverage/lcov.info:"
           test -f coverage/lcov.info && head -n 20 coverage/lcov.info || echo "coverage/lcov.info NOT FOUND"
 
       - name: Sonar Scan
