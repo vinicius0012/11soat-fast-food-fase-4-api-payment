@@ -6,7 +6,7 @@ import {
 interface PyamentClientEntity {
   id: number;
   name: string;
-  email: string;
+  email?: string;
   document: string;
 }
 
@@ -42,7 +42,7 @@ export interface PaymentDtoResponse {
   amount: number;
   expirationDate?: Date;
   client?: PyamentClientEntity | null;
-  status: string;
+  status: PaymentStatus;
   created_at: Date;
   updated_at?: Date;
   orderId?: number;
@@ -70,6 +70,7 @@ export interface PaymentExternalResponseDataInterface {
     payer?: PaymentDataPayer;
   };
   client?: PyamentClientEntity | null;
+  items?: PaymentDataItem[];
 }
 
 export interface PaymentDataItem {
@@ -117,7 +118,7 @@ export interface CheckPaymentStatusDto {
 
 export interface PaymentStatusResponse {
   id?: number;
-  orderId: number;
+  orderId?: number;
   transactionId: string;
   status: PaymentStatus;
   amount: number;

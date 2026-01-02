@@ -3,7 +3,7 @@ import { ObjectId } from 'mongodb';
 export interface Client {
   id: number;
   name: string;
-  email: string;
+  email?: string;
   document: string;
 }
 

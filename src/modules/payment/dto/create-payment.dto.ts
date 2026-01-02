@@ -7,26 +7,8 @@ import {
   IsString,
 } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-
-class PaymentClient {
-  id: number;
-  name: string;
-  email: string;
-  document: string;
-}
-
-class PaymentItems {
-  id: string;
-  title: string | null;
-  description: string;
-  picture_url: string;
-  category_id: string;
-  quantity: number;
-  unit_price: number;
-  type: string;
-  event_date: string;
-  warranty: boolean;
-}
+import { PaymentItemsDto } from './payment-items.dto';
+import { ClientPaymentDto } from './client-payment.dto';
 
 export class CreatePaymentDto {
   @ApiProperty({
@@ -80,7 +62,7 @@ export class CreatePaymentDto {
   })
   @IsObject()
   @IsOptional()
-  client?: PaymentClient | null;
+  client?: ClientPaymentDto | null;
 
   @ApiPropertyOptional({
     description: 'Itens do pagamento',
@@ -101,5 +83,5 @@ export class CreatePaymentDto {
   })
   @IsArray()
   @IsOptional()
-  items?: PaymentItems[];
+  items?: PaymentItemsDto[];
 }

@@ -1,7 +1,9 @@
+import { PaymentStatus } from '../../value-objects/payment/payment.status.enum';
+
 interface PyamentClientEntity {
   id: number;
   name: string;
-  email: string;
+  email?: string;
   document: string;
 }
 
@@ -27,7 +29,7 @@ export class PaymentEntity {
   amount: number;
   expirationDate?: Date;
   client?: PyamentClientEntity | null;
-  status: string;
+  status: PaymentStatus;
   created_at: Date;
   updated_at?: Date;
   orderId?: number;
