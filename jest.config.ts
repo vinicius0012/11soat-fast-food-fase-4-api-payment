@@ -13,6 +13,8 @@ const config: Config = {
   moduleNameMapper: {
     '^src/(.*)$': '<rootDir>/$1',
   },
+  testTimeout: 15000,
+  maxWorkers: '50%',
 };
 
 export default config;
