@@ -93,9 +93,9 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           args: >
-            -Dsonar.host.url=https://sonarcloud.io
-            -Dsonar.organization=vinicius0012
-            -Dsonar.projectKey=vinicius0012_11soat-fast-food-fase-4-api-payment
+            -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }}
+            -Dsonar.organization=${{ secrets.SONAR_ORGANIZATION }}
+            -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}
 
   semantic-release:
     name: Semantic Release
