@@ -1,4 +1,4 @@
-name: API Payment CI/CD
+name: Toten Node.js CI/CD
 
 on:
   push:
@@ -8,142 +8,121 @@ on:
 
 jobs:
   eslint:
-    name: ESLint Analysis
+    name: ESlint Analysis
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Setup Node
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: "22"
           cache: "npm"
           cache-dependency-path: ./package-lock.json
 
-      - name: Install deps
-        run: npm install
-
-      - name: Lint
-        run: npm run lint
+      - run: npm ci
+      - run: npm run lint
 
   typecheck:
     name: TypeScript Check
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Setup Node
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: "22"
           cache: "npm"
           cache-dependency-path: ./package-lock.json
 
-      - name: Install deps
-        run: npm install
-
-      - name: Typecheck
-        run: npx tsc --noEmit
+      - run: npm ci
+      - run: npx tsc --noEmit
 
   test:
     name: Unit Tests
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Setup Node
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: "22"
           cache: "npm"
           cache-dependency-path: ./package-lock.json
 
-      - name: Install deps
-        run: npm ci
+      - run: npm ci
 
-      - name: Run tests with coverage (lcov)
+      - name: Run tests with coverage
         run: npm test -- --coverage --coverageReporters=lcov
 
-      # ✅ Envia SOMENTE o lcov.info (evita o bug coverage/coverage/lcov.info)
-      - name: Upload coverage lcov
+      - name: Upload coverage reports
         uses: actions/upload-artifact@v4
         with:
-          name: coverage-lcov
-          path: coverage/lcov.info
+          name: coverage-reports
+          path: coverage/
 
   sonarcloud:
     name: SonarCloud Analysis
     runs-on: ubuntu-latest
     needs: [eslint, typecheck, test]
-
-    # ✅ necessário para decorar PR e criar checks
     permissions:
       contents: read
       pull-requests: write
       checks: write
-
     steps:
-      - name: Checkout (full history)
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Download coverage lcov
-        uses: actions/download-artifact@v4
+      # Baixa na raiz para manter coverage/lcov.info exatamente no lugar esperado
+      - uses: actions/download-artifact@v4
         with:
-          name: coverage-lcov
-          path: coverage
+          name: coverage-reports
+          path: .
 
-      - name: Validate coverage file exists
+      - name: Debug coverage path
         run: |
-          ls -la coverage
-          test -f coverage/lcov.info
+          echo "Listing coverage folder:"
+          ls -la coverage || true
+          echo "First lines of lcov:"
+          test -f coverage/lcov.info && head -n 20 coverage/lcov.info || echo "coverage/lcov.info NOT FOUND"
 
-      # ✅ Se você usa sonar-project.properties, não precisa passar args duplicados.
-      # Só garante que o arquivo está na raiz do repo.
-      - name: SonarCloud Scan
+      - name: Sonar Scan
         uses: SonarSource/sonarqube-scan-action@v6
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          args: >
+            -Dsonar.host.url=https://sonarcloud.io
+            -Dsonar.organization=vinicius0012
+            -Dsonar.projectKey=vinicius0012_11soat-fast-food-fase-4-api-payment
 
   semantic-release:
     name: Semantic Release
     runs-on: ubuntu-latest
     needs: [eslint, typecheck, sonarcloud]
-
-    # ✅ somente em push na main
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-
     outputs:
       new_tag: ${{ steps.get_version.outputs.version }}
-
     steps:
-      - name: Checkout (full history + tags)
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Setup Node
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: "20"
           cache: "npm"
           cache-dependency-path: ./package-lock.json
 
-      - name: Install deps
-        run: npm ci
+      - run: npm ci
 
       - name: Run semantic-release
-        id: semantic
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: npx semantic-release
 
-      - name: Get generated version (tag)
+      - name: Get generated version
         id: get_version
         run: |
           if git describe --tags --abbrev=0 2>/dev/null; then
@@ -153,40 +132,28 @@ jobs:
             echo "version=" >> "$GITHUB_OUTPUT"
           fi
 
-  docker-build-and-push:
+  docker-build:
     name: Build and Push Docker Image
     runs-on: ubuntu-latest
     needs: semantic-release
-
-    # ✅ somente em push na main
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-
-    outputs:
-      image_tag: ${{ steps.set_out.outputs.image_tag }}
-
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
+      - uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
 
-      - name: Login to Amazon ECR
-        uses: aws-actions/amazon-ecr-login@v2
+      - uses: aws-actions/amazon-ecr-login@v2
 
-      - name: Build & Push
-        id: buildpush
+      - name: Build and Push
         run: |
           VERSION="${{ needs.semantic-release.outputs.new_tag }}"
           if [ -z "$VERSION" ]; then
             VERSION="latest"
           fi
-
-          echo "Using VERSION=$VERSION"
 
           docker build -t ${{ secrets.ECR_REPOSITORY }}:$VERSION .
           docker push ${{ secrets.ECR_REPOSITORY }}:$VERSION
@@ -194,32 +161,18 @@ jobs:
           docker tag ${{ secrets.ECR_REPOSITORY }}:$VERSION ${{ secrets.ECR_REPOSITORY }}:latest
           docker push ${{ secrets.ECR_REPOSITORY }}:latest
 
-          echo "$VERSION" > image_tag.txt
-
-      - name: Set output image_tag
-        id: set_out
-        run: |
-          TAG=$(cat image_tag.txt)
-          echo "image_tag=$TAG" >> "$GITHUB_OUTPUT"
-
   deploy:
     name: Deploy to EKS
     runs-on: ubuntu-latest
-    needs: docker-build-and-push
-
-    # ✅ somente em push na main
+    needs: docker-build
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-
     permissions:
       id-token: write
       contents: read
-
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Configure AWS credentials (OIDC)
-        uses: aws-actions/configure-aws-credentials@v4
+      - uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/${{ secrets.AWS_OIDC_ROLE_NAME }}
           aws-region: ${{ vars.AWS_REGION || secrets.AWS_REGION }}
@@ -245,9 +198,7 @@ jobs:
         run: |
           kubectl get namespace fastfood || kubectl create namespace fastfood
 
-      # ✅ aqui você pode trocar por "set image" se quiser aplicar a tag gerada
       - name: Rollout restart
         run: |
-          echo "Deploying image tag: ${{ needs.docker-build-and-push.outputs.image_tag }}"
           kubectl -n fastfood rollout restart deployment/fastfood-app
           kubectl -n fastfood get pods -o wide
