@@ -3,13 +3,13 @@ import { ObjectId } from 'mongodb';
 export interface Client {
   id: number;
   name: string;
-  email: string;
+  email?: string;
   document: string;
 }
 
-export interface PaymentItem {
+export interface PaymentItems {
   id: string;
-  title: string;
+  title: string | null;
   description: string;
   picture_url: string;
   category_id: string;
@@ -22,7 +22,6 @@ export interface PaymentItem {
 
 export interface PaymentDocument {
   _id?: ObjectId;
-  id: number;
   transactionId: string;
   qrCodeBase64?: string;
   qrCodeString?: string;
@@ -33,7 +32,7 @@ export interface PaymentDocument {
   client?: Client | null;
   status: string;
   orderId: number;
-  items: PaymentItem[];
+  items: PaymentItems[];
   callbackUrl?: string;
   created_at: Date;
   updated_at?: Date;

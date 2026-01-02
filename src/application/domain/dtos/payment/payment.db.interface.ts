@@ -6,13 +6,21 @@ import {
 interface PyamentClientEntity {
   id: number;
   name: string;
-  email: string;
+  email?: string;
   document: string;
 }
 
-interface PaymentOrderEntity {
-  id: number;
-  items: PaymentDataItem[];
+interface PaymentItems {
+  id: string;
+  title: string | null;
+  description: string;
+  picture_url: string;
+  category_id: string;
+  quantity: number;
+  unit_price: number;
+  type: string;
+  event_date: string;
+  warranty: boolean;
 }
 
 export interface CreatePaymentDto {
@@ -22,7 +30,7 @@ export interface CreatePaymentDto {
   callbackUrl?: string;
   expirationMinutes?: number;
   client?: PyamentClientEntity | null;
-  items?: PaymentDataItem[];
+  items?: PaymentItems[];
 }
 
 export interface PaymentDtoResponse {
@@ -34,7 +42,7 @@ export interface PaymentDtoResponse {
   amount: number;
   expirationDate?: Date;
   client?: PyamentClientEntity | null;
-  status: string;
+  status: PaymentStatus;
   created_at: Date;
   updated_at?: Date;
   orderId?: number;
@@ -62,6 +70,7 @@ export interface PaymentExternalResponseDataInterface {
     payer?: PaymentDataPayer;
   };
   client?: PyamentClientEntity | null;
+  items?: PaymentDataItem[];
 }
 
 export interface PaymentDataItem {
@@ -109,7 +118,7 @@ export interface CheckPaymentStatusDto {
 
 export interface PaymentStatusResponse {
   id?: number;
-  orderId: number;
+  orderId?: number;
   transactionId: string;
   status: PaymentStatus;
   amount: number;
@@ -129,7 +138,7 @@ export interface ExternalReferenceDto {
 export interface PaymentStatusWithOrderResponse {
   transactionId?: number | null;
   status: PaymentStatus;
-  order: PaymentOrderEntity;
+  items: PaymentItems[];
 }
 
 export interface UpdatePaymentStatus {

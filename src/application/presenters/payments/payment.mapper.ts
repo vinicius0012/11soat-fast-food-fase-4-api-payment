@@ -35,7 +35,7 @@ export class PaymentMapper {
       status: mapToDomainPaymentStatus(data.status as PaymentExternalStatus),
       amount: data.transaction_amount,
       urlPayment: data.point_of_interaction?.transaction_data?.ticket_url ?? '',
-      items: [],
+      items: data.items,
       qrCodeString: data.point_of_interaction?.transaction_data?.qr_code ?? '',
       qrCodeBase64:
         data.point_of_interaction?.transaction_data?.qr_code_base64 ?? '',
@@ -58,6 +58,7 @@ export class PaymentMapper {
    */
   static toExternalService(
     data: CreatePaymentDto,
+    webhookUrl: string,
   ): PaymentExternalSentDataInterface {
     const client = data.client ?? mockRandomPayer;
     const { firstName, lastName } = splitNamePayment(client?.name ?? '');
@@ -65,7 +66,6 @@ export class PaymentMapper {
       client?.document ?? '',
       '999.999.999-99',
     );
-    const webhookURL = process.env.WEBHOOK_URL || '';
 
     return {
       transaction_amount: data.amount,
@@ -84,7 +84,7 @@ export class PaymentMapper {
       additional_info: {
         items: data.items ?? [],
       },
-      notification_url: webhookURL,
+      notification_url: webhookUrl,
     };
   }
 }

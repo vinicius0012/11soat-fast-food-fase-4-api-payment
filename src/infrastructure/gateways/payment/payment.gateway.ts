@@ -21,6 +21,7 @@ import { PaymentRepository } from 'src/infrastructure/database/mongo/repositorie
 export class PaymentGateway implements PaymentServicePort {
   private readonly apiBaseUrl: string;
   private readonly paymentAccessToken: string;
+  private readonly webhookUrl: string;
 
   constructor(
     private readonly configService: ConfigService,
@@ -30,6 +31,7 @@ export class PaymentGateway implements PaymentServicePort {
       this.configService.get<string>('paymentServiceBaseUrl') ?? '';
     this.paymentAccessToken =
       this.configService.get<string>('paymentAccessToken') ?? '';
+    this.webhookUrl = this.configService.get<string>('webhookUrl') ?? '';
 
     if (!this.apiBaseUrl) {
       throw new Error('URL base do serviço de pagamento não configurada');
@@ -44,7 +46,7 @@ export class PaymentGateway implements PaymentServicePort {
 
   async createPayment(data: CreatePaymentDto): Promise<PaymentDtoResponse> {
     try {
-      const payload = PaymentMapper.toExternalService(data);
+      const payload = PaymentMapper.toExternalService(data, this.webhookUrl);
 
       const response = await axios.post(
         `${this.apiBaseUrl}/payments`,
@@ -81,7 +83,7 @@ export class PaymentGateway implements PaymentServicePort {
         client: data.client,
         status: paymentResponse.status,
         orderId: data.orderId ?? Number(paymentResponse.id.toString()),
-        items: [],
+        items: data.items ?? [],
         callbackUrl: data.callbackUrl as string,
       });
 
@@ -122,14 +124,15 @@ export class PaymentGateway implements PaymentServicePort {
         });
       }
 
-      const paymentStatus = response.data as PaymentStatusResponse;
+      const paymentStatus =
+        response.data as PaymentExternalResponseDataInterface;
 
       await this.paymentRepository.updateStatus(
         data.transactionId,
-        paymentStatus.status as string,
+        paymentStatus.status,
       );
 
-      return paymentStatus;
+      return PaymentMapper.toDomain(paymentStatus);
     } catch (error) {
       if (error instanceof AppError) {
         throw error;

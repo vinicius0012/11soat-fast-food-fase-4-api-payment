@@ -2,122 +2,177 @@ name: Toten Node.js CI/CD
 
 on:
   push:
-    branches:
-      - develop
-      - main
+    branches: [develop, main]
+  pull_request:
+    types: [opened, synchronize, reopened]
 
 jobs:
   eslint:
     name: ESlint Analysis
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-      - name: Setup Node
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
         with:
-          node-version: '22'
-          cache: 'npm'
+          node-version: "22"
+          cache: "npm"
           cache-dependency-path: ./package-lock.json
-      - name: Install dependencies
-        run: npm install
-      - name: Run ESLint
-        run: npm run lint
+
+      - run: npm ci
+      - run: npm run lint
 
   typecheck:
     name: TypeScript Check
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-node@v4
         with:
-          node-version: '22'
-      - run: npm install
+          node-version: "22"
+          cache: "npm"
+          cache-dependency-path: ./package-lock.json
+
+      - run: npm ci
       - run: npx tsc --noEmit
+
+  test:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+          cache-dependency-path: ./package-lock.json
+
+      - run: npm ci
+
+      - name: Run tests with coverage
+        run: npm test -- --coverage --coverageReporters=lcov
+
+      - name: Upload coverage reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-reports
+          path: coverage/
+
+  sonarcloud:
+    name: SonarCloud Analysis
+    runs-on: ubuntu-latest
+    needs: [eslint, typecheck, test]
+    permissions:
+      contents: read
+      pull-requests: write
+      checks: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # Baixa na raiz para manter coverage/lcov.info exatamente no lugar esperado
+      - uses: actions/download-artifact@v4
+        with:
+          name: coverage-reports
+          path: .
+
+      - name: Debug coverage path
+        run: |
+          echo "Listing coverage folder:"
+          ls -la coverage || true
+          echo "First lines of lcov:"
+          test -f coverage/lcov.info && head -n 20 coverage/lcov.info || echo "coverage/lcov.info NOT FOUND"
+
+      - name: Sonar Scan
+        uses: SonarSource/sonarqube-scan-action@v6
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          args: >
+            -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }}
+            -Dsonar.organization=${{ secrets.SONAR_ORGANIZATION }}
+            -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}
 
   semantic-release:
     name: Semantic Release
     runs-on: ubuntu-latest
-    needs: [eslint, typecheck]
+    needs: [eslint, typecheck, sonarcloud]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     outputs:
       new_tag: ${{ steps.get_version.outputs.version }}
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Setup Node
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v4
         with:
-          node-version: '20'
-          cache: 'npm'
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
           cache-dependency-path: ./package-lock.json
-      - name: Install dependencies
-        run: npm ci
+
+      - run: npm ci
+
       - name: Run semantic-release
-        id: semantic
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: npx semantic-release
+
       - name: Get generated version
         id: get_version
         run: |
           if git describe --tags --abbrev=0 2>/dev/null; then
             VERSION=$(git describe --tags --abbrev=0)
-            echo "Generated version: $VERSION"
             echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           else
-            echo "No tags found, using default version"
             echo "version=" >> "$GITHUB_OUTPUT"
           fi
-      - name: Debug outputs
-        run: |
-          echo "New tag output: '${{ steps.get_version.outputs.version }}'"
-          echo "Semantic release outcome: ${{ steps.semantic.outcome }}"
 
   docker-build:
     name: Build and Push Docker Image
     runs-on: ubuntu-latest
     needs: semantic-release
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     steps:
-      - name: Debug docker-build inputs
-        run: |
-          echo "Received tag: '${{ needs.semantic-release.outputs.new_tag }}'"
-          echo "Job will proceed with VERSION: ${{ needs.semantic-release.outputs.new_tag }}"
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
+      - uses: actions/checkout@v4
+
+      - uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
-      - name: Login to Amazon ECR
-        uses: aws-actions/amazon-ecr-login@v2
-      - name: Build Docker image
+
+      - uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build and Push
         run: |
-          VERSION=${{ needs.semantic-release.outputs.new_tag }}
+          VERSION="${{ needs.semantic-release.outputs.new_tag }}"
+          if [ -z "$VERSION" ]; then
+            VERSION="latest"
+          fi
+
           docker build -t ${{ secrets.ECR_REPOSITORY }}:$VERSION .
-          docker tag ${{ secrets.ECR_REPOSITORY }}:$VERSION ${{ secrets.ECR_REPOSITORY }}:latest
-      - name: Push to Amazon ECR
-        run: |
-          VERSION=${{ needs.semantic-release.outputs.new_tag }}
           docker push ${{ secrets.ECR_REPOSITORY }}:$VERSION
+
+          docker tag ${{ secrets.ECR_REPOSITORY }}:$VERSION ${{ secrets.ECR_REPOSITORY }}:latest
           docker push ${{ secrets.ECR_REPOSITORY }}:latest
 
   deploy:
     name: Deploy to EKS
     runs-on: ubuntu-latest
     needs: docker-build
-
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     permissions:
       id-token: write
       contents: read
-
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
+      - uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/${{ secrets.AWS_OIDC_ROLE_NAME }}
           aws-region: ${{ vars.AWS_REGION || secrets.AWS_REGION }}
@@ -132,61 +187,18 @@ jobs:
           sudo mv kubectl /usr/local/bin/kubectl
           kubectl version --client
 
-      - name: Verify AWS credentials
-        run: |
-          aws sts get-caller-identity
-          aws eks describe-cluster --name "${{ secrets.EKS_CLUSTER_NAME }}" --region "${{ vars.AWS_REGION || secrets.AWS_REGION }}" --query 'cluster.status'
-
       - name: Update kubeconfig
         run: |
           aws eks update-kubeconfig \
             --name "${{ secrets.EKS_CLUSTER_NAME }}" \
             --region "${{ vars.AWS_REGION || secrets.AWS_REGION }}" \
-            --verbose
-
-      - name: Add IAM access to EKS cluster
-        run: |
-          ASSUMED_ROLE_ARN=$(aws sts get-caller-identity --query 'Arn' --output text)
-
-          ACCOUNT_ID=$(echo $ASSUMED_ROLE_ARN | cut -d: -f5)
-          ROLE_NAME=$(echo $ASSUMED_ROLE_ARN | cut -d/ -f2)
-          BASE_ROLE_ARN="arn:aws:iam::${ACCOUNT_ID}:role/${ROLE_NAME}"
-
-
-          aws eks associate-access-policy \
-            --cluster-name "${{ secrets.EKS_CLUSTER_NAME }}" \
-            --principal-arn "$BASE_ROLE_ARN" \
-            --policy-arn "arn:aws:eks::aws:cluster-access-policy/AmazonEKSClusterAdminPolicy" \
-            --access-scope type=cluster \
-            --region "${{ vars.AWS_REGION || secrets.AWS_REGION }}"
-
-          echo "Aguardando permissões serem propagadas"
-          sleep 20
-
-      - name: Test kubectl connection
-        run: |
-
-          kubectl config unset users
-          aws eks update-kubeconfig \
-            --name "${{ secrets.EKS_CLUSTER_NAME }}" \
-            --region "${{ vars.AWS_REGION || secrets.AWS_REGION }}" \
             --alias eks-cluster
 
-          if kubectl get nodes --request-timeout=30s; then
-            echo "Conectado com sucesso"
-            kubectl get nodes -o wide
-            kubectl get namespaces
-          else
-            echo "Falha ao conectar."
-            sleep 30
-            kubectl get nodes --request-timeout=30s 
-          fi
-
-      - name: Create namespace if it doesn't exist
+      - name: Ensure namespace
         run: |
           kubectl get namespace fastfood || kubectl create namespace fastfood
 
-      - name: Deploy new version to EKS
+      - name: Rollout restart
         run: |
           kubectl -n fastfood rollout restart deployment/fastfood-app
           kubectl -n fastfood get pods -o wide

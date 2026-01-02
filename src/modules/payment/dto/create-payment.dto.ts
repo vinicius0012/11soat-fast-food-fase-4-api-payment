@@ -1,5 +1,14 @@
-import { IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
+import {
+  IsArray,
+  IsNotEmpty,
+  IsNumber,
+  IsObject,
+  IsOptional,
+  IsString,
+} from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { PaymentItemsDto } from './payment-items.dto';
+import { ClientPaymentDto } from './client-payment.dto';
 
 export class CreatePaymentDto {
   @ApiProperty({
@@ -41,4 +50,38 @@ export class CreatePaymentDto {
   @IsNumber()
   @IsOptional()
   expirationMinutes?: number;
+
+  @ApiPropertyOptional({
+    description: 'Cliente do pagamento',
+    example: {
+      id: 12345,
+      name: 'John Doe',
+      email: 'john.doe@example.com',
+      document: '1234567890',
+    },
+  })
+  @IsObject()
+  @IsOptional()
+  client?: ClientPaymentDto | null;
+
+  @ApiPropertyOptional({
+    description: 'Itens do pagamento',
+    example: [
+      {
+        id: '12345',
+        title: 'Item 1',
+        description: 'Descrição do item 1',
+        picture_url: 'https://example.com/item1.jpg',
+        category_id: '1234567890',
+        quantity: 1,
+        unit_price: 100,
+        type: 'product',
+        event_date: '2026-01-01',
+        warranty: true,
+      },
+    ],
+  })
+  @IsArray()
+  @IsOptional()
+  items?: PaymentItemsDto[];
 }

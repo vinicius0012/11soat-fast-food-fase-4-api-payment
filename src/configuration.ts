@@ -7,6 +7,11 @@ export default () => ({
     process.env.MONGODB_URI ??
     'mongodb://localhost:27017/?retryWrites=true&loadBalanced=false&serverSelectionTimeoutMS=5000&connectTimeoutMS=10000',
 
+  // webhook configuration
+  webhookUrl:
+    process.env.WEBHOOK_URL ??
+    'https://webhook.site/123e4567-e89b-12d3-a456-426614174000',
+
   // jwt configuration
   expirationTime: process.env.EXPIRATION_TIME ?? '1h',
   jwtSecret: process.env.JWT_SECRET ?? 'Z3vcFnw1iCy4OY7LioPlo6jB',

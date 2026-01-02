@@ -37,9 +37,11 @@ export class PaymentController {
     private readonly configService: ConfigService,
     private readonly mongoService: MongoService,
   ) {
+    const paymentRepository = new PaymentRepository(this.mongoService);
+
     const paymentGateway = new PaymentGateway(
       this.configService,
-      this.mongoService as unknown as PaymentRepository,
+      paymentRepository,
     );
 
     this.cleanArchController = new CleanArchPaymentController(paymentGateway);
