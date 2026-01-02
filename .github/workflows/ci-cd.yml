@@ -84,7 +84,7 @@ jobs:
           args: >
             -Dsonar.host.url=https://sonarcloud.io
             -Dsonar.organization=vinicius0012
-            -Dsonar.projectKey=11soat-fast-food-fase-4-api-payment
+            -Dsonar.projectKey=vinicius0012_11soat-fast-food-fase-4-api-payment
             -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
             -Dsonar.typescript.lcov.reportPaths=coverage/lcov.info
 
