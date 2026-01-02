@@ -20,12 +20,14 @@ import { CreatePaymentDto } from 'src/modules/payment/dto/create-payment.dto';
 export class PaymentServiceImpl implements PaymentServicePort {
   private readonly apiBaseUrl: string;
   private readonly paymentAccessToken: string;
+  private readonly webhookUrl: string;
 
   constructor(private readonly configService: ConfigService) {
     this.apiBaseUrl =
       this.configService.get<string>('paymentServiceBaseUrl') ?? '';
     this.paymentAccessToken =
       this.configService.get<string>('paymentAccessToken') ?? '';
+    this.webhookUrl = this.configService.get<string>('webhookUrl') ?? '';
 
     if (!this.apiBaseUrl) {
       throw new Error('URL base do Mercado Pago não configurada');
@@ -41,7 +43,7 @@ export class PaymentServiceImpl implements PaymentServicePort {
 
   async createPayment(data: CreatePaymentDto): Promise<PaymentDtoResponse> {
     try {
-      const payload = PaymentMapper.toExternalService(data);
+      const payload = PaymentMapper.toExternalService(data, this.webhookUrl);
 
       const response = await axios.post(
         `${this.apiBaseUrl}/payments`,
