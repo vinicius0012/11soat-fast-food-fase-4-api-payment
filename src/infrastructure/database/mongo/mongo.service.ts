@@ -4,8 +4,8 @@ import { MongoClient, Db } from 'mongodb';
 
 @Injectable()
 export class MongoService implements OnModuleInit, OnModuleDestroy {
-  private client: MongoClient;
-  private db: Db;
+  public client: MongoClient;
+  public db: Db;
 
   constructor(private readonly configService: ConfigService) {}
 
