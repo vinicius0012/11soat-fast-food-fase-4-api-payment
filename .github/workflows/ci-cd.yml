@@ -51,13 +51,13 @@ jobs:
 
       - run: npm ci
 
-      - name: Run tests with coverage
-        run: npm test -- --coverage --coverageReporters=lcov
+      - name: Run tests with coverage (lcov)
+        run: yarn test:coverage
 
       - name: Upload coverage reports
         uses: actions/upload-artifact@v4
         with:
-          name: coverage-reports
+          name: coverage
           path: coverage/
 
   sonarcloud:
@@ -73,29 +73,24 @@ jobs:
         with:
           fetch-depth: 0
 
-      # Baixa na raiz para manter coverage/lcov.info exatamente no lugar esperado
       - uses: actions/download-artifact@v4
         with:
-          name: coverage-reports
-          path: .
+          name: coverage
+          path: coverage
 
       - name: Debug coverage path
         run: |
+          echo "PWD=$(pwd)"
           echo "Listing coverage folder:"
           ls -la coverage || true
-          echo "First lines of lcov:"
+          echo "First lines of coverage/lcov.info:"
           test -f coverage/lcov.info && head -n 20 coverage/lcov.info || echo "coverage/lcov.info NOT FOUND"
 
       - name: Sonar Scan
-        uses: SonarSource/sonarqube-scan-action@v6
+        uses: SonarSource/sonarcloud-github-action@v2
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          args: >
-            -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }}
-            -Dsonar.organization=${{ secrets.SONAR_ORGANIZATION }}
-            -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}
 
   semantic-release:
     name: Semantic Release
