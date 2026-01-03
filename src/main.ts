@@ -49,6 +49,11 @@ async function main() {
   console.log(`📚 Swagger docs available at http://localhost:${port}/api-docs`);
 }
 
-main().catch((error) => {
-  console.error('Error starting the application:', error);
-});
+void (async function bootstrap() {
+  try {
+    await main();
+  } catch (error) {
+    console.error('Error starting the application:', error);
+    process.exit(1);
+  }
+})();

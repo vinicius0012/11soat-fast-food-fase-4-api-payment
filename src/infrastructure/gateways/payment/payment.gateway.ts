@@ -16,6 +16,7 @@ import { PaymentServicePort } from 'src/application/ports/output/repositories/pa
 import { PaymentMapper } from 'src/application/presenters/payments/payment.mapper';
 import { generatePaymentUUID } from 'src/infrastructure/shared/utils/payment.util';
 import { PaymentRepository } from 'src/infrastructure/database/mongo/repositories/payment.repository';
+import { handleErrorDescription } from 'src/infrastructure/shared/utils/error.handler.util';
 
 @Injectable()
 export class PaymentGateway implements PaymentServicePort {
@@ -95,11 +96,7 @@ export class PaymentGateway implements PaymentServicePort {
 
       throw AppError.internal({
         message: 'Falha ao gerar pagamento',
-        details: axios.isAxiosError(error)
-          ? error.response?.data
-          : error instanceof Error
-            ? error.message
-            : String(error),
+        details: handleErrorDescription(error),
       });
     }
   }
@@ -140,11 +137,7 @@ export class PaymentGateway implements PaymentServicePort {
 
       throw AppError.internal({
         message: 'Falha ao verificar status do pagamento',
-        details: axios.isAxiosError(error)
-          ? error.response?.data
-          : error instanceof Error
-            ? error.message
-            : String(error),
+        details: handleErrorDescription(error),
       });
     }
   }
@@ -183,11 +176,7 @@ export class PaymentGateway implements PaymentServicePort {
 
       throw AppError.internal({
         message: 'Falha ao cancelar pagamento',
-        details: axios.isAxiosError(error)
-          ? error.response?.data
-          : error instanceof Error
-            ? error.message
-            : String(error),
+        details: handleErrorDescription(error),
       });
     }
   }
@@ -230,11 +219,7 @@ export class PaymentGateway implements PaymentServicePort {
 
       throw AppError.internal({
         message: 'Falha ao processar callback de pagamento',
-        details: axios.isAxiosError(error)
-          ? error.response?.data
-          : error instanceof Error
-            ? error.message
-            : String(error),
+        details: handleErrorDescription(error),
       });
     }
   }
@@ -247,7 +232,7 @@ export class PaymentGateway implements PaymentServicePort {
       const paymentInDb =
         await this.paymentRepository.findByTransactionId(transactionId);
 
-      if (paymentInDb && paymentInDb.orderId) {
+      if (paymentInDb?.orderId) {
         return { orderId: paymentInDb.orderId, transactionId };
       }
 
@@ -276,8 +261,8 @@ export class PaymentGateway implements PaymentServicePort {
         });
       }
 
-      const orderId = parseInt(data.external_reference);
-      if (isNaN(orderId)) {
+      const orderId = Number.parseInt(data.external_reference);
+      if (Number.isNaN(orderId)) {
         throw AppError.internal({
           message: 'external_reference não é um ID de pedido válido',
         });
@@ -291,11 +276,7 @@ export class PaymentGateway implements PaymentServicePort {
 
       throw AppError.internal({
         message: 'Falha ao obter referência externa',
-        details: axios.isAxiosError(error)
-          ? error.response?.data
-          : error instanceof Error
-            ? error.message
-            : String(error),
+        details: handleErrorDescription(error),
       });
     }
   }
@@ -316,11 +297,7 @@ export class PaymentGateway implements PaymentServicePort {
 
       throw AppError.internal({
         message: 'Falha ao atualizar status do pagamento',
-        details: axios.isAxiosError(error)
-          ? error.response?.data
-          : error instanceof Error
-            ? error.message
-            : String(error),
+        details: handleErrorDescription(error),
       });
     }
   }

@@ -9,12 +9,12 @@ import { PaymentPresenter } from 'src/application/presenters/payments/payments.p
 import { CreatePaymentDto } from 'src/application/domain/dtos/payment/payment.db.interface';
 
 export class PaymentController {
-  private createPaymentUseCase: CreatePaymentUseCase;
-  private getPaymentStatusUseCase: GetPaymentStatusUseCase;
-  private updatePaymentStatusWithTransactionIdUseCase: UpdatePaymentStatusWithTransactionIdUseCase;
-  private cancelPaymentUseCase: CancelPaymentUseCase;
-  private processPaymentWebhookUseCase: ProcessPaymentWebhookUseCase;
-  private getExternalReferenceByTransactionUseCase: GetExternalReferenceByTransactionUseCase;
+  private readonly createPaymentUseCase: CreatePaymentUseCase;
+  private readonly getPaymentStatusUseCase: GetPaymentStatusUseCase;
+  private readonly updatePaymentStatusWithTransactionIdUseCase: UpdatePaymentStatusWithTransactionIdUseCase;
+  private readonly cancelPaymentUseCase: CancelPaymentUseCase;
+  private readonly processPaymentWebhookUseCase: ProcessPaymentWebhookUseCase;
+  private readonly getExternalReferenceByTransactionUseCase: GetExternalReferenceByTransactionUseCase;
 
   constructor(private readonly paymentService: PaymentServicePort) {
     this.createPaymentUseCase = new CreatePaymentUseCase(this.paymentService);

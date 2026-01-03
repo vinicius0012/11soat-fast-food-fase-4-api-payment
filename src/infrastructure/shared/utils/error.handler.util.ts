@@ -1,4 +1,5 @@
 import { Logger } from '@nestjs/common';
+import axios from 'axios';
 import { AppError } from 'src/application/domain/errors/app.error';
 
 /**
@@ -29,3 +30,22 @@ export function handleServiceError(error: unknown, context: string): never {
     details: error,
   });
 }
+
+export const handleErrorDescription = (error: unknown) => {
+  if (axios.isAxiosError(error)) {
+    return (
+      (error.response?.data as { message?: string })?.message ??
+      'An unexpected error occurred'
+    );
+  }
+
+  if (error instanceof AppError) {
+    return error.message;
+  }
+
+  if (error instanceof Error) {
+    return error.message;
+  }
+
+  return String(error);
+};

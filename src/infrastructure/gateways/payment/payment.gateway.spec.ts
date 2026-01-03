@@ -190,6 +190,66 @@ describe('PaymentGateway', () => {
         gateway.createPayment(createPaymentDto as any),
       ).rejects.toThrow(AppError);
     });
+
+    it('should handle non-axios errors in createPayment', async () => {
+      const createPaymentDto = {
+        orderId: 123,
+        amount: 100,
+        description: 'Test payment',
+        client: {},
+        items: [],
+      };
+
+      (generatePaymentUUID as jest.Mock).mockReturnValue('uuid-123');
+      (PaymentMapper.toExternalService as jest.Mock).mockReturnValue({});
+
+      mockAxios.post.mockRejectedValue(new Error('Generic error'));
+      mockAxios.isAxiosError.mockReturnValue(false);
+
+      await expect(
+        gateway.createPayment(createPaymentDto as any),
+      ).rejects.toThrow(AppError);
+    });
+
+    it('should rethrow AppError when it is already an AppError', async () => {
+      const createPaymentDto = {
+        orderId: 123,
+        amount: 100,
+        description: 'Test payment',
+        client: {},
+        items: [],
+      };
+
+      (generatePaymentUUID as jest.Mock).mockReturnValue('uuid-123');
+      (PaymentMapper.toExternalService as jest.Mock).mockReturnValue({});
+
+      const appError = AppError.internal({ message: 'Test error' });
+      mockAxios.post.mockRejectedValue(appError);
+
+      await expect(
+        gateway.createPayment(createPaymentDto as any),
+      ).rejects.toThrow(appError);
+    });
+
+    it('should handle string errors in createPayment', async () => {
+      const createPaymentDto = {
+        orderId: 123,
+        amount: 100,
+        description: 'Test payment',
+        client: {},
+        items: [],
+      };
+
+      (generatePaymentUUID as jest.Mock).mockReturnValue('uuid-123');
+      (PaymentMapper.toExternalService as jest.Mock).mockReturnValue({});
+
+      mockAxios.post.mockRejectedValue('String error');
+      mockAxios.isAxiosError.mockReturnValue(false);
+
+      await expect(
+        gateway.createPayment(createPaymentDto as any),
+      ).rejects.toThrow(AppError);
+    });
   });
 
   describe('checkPaymentStatus', () => {
@@ -240,6 +300,47 @@ describe('PaymentGateway', () => {
         status: 404,
         data: {},
       });
+
+      await expect(
+        gateway.checkPaymentStatus({ transactionId: '12345' }),
+      ).rejects.toThrow(AppError);
+    });
+
+    it('should handle axios errors in checkPaymentStatus', async () => {
+      const axiosError = {
+        isAxiosError: true,
+        response: { data: { message: 'Network error' } },
+      };
+
+      mockAxios.get.mockRejectedValue(axiosError);
+      mockAxios.isAxiosError.mockReturnValue(true);
+
+      await expect(
+        gateway.checkPaymentStatus({ transactionId: '12345' }),
+      ).rejects.toThrow(AppError);
+    });
+
+    it('should handle non-axios errors in checkPaymentStatus', async () => {
+      mockAxios.get.mockRejectedValue(new Error('Generic error'));
+      mockAxios.isAxiosError.mockReturnValue(false);
+
+      await expect(
+        gateway.checkPaymentStatus({ transactionId: '12345' }),
+      ).rejects.toThrow(AppError);
+    });
+
+    it('should rethrow AppError when it is already an AppError', async () => {
+      const appError = AppError.internal({ message: 'Test error' });
+      mockAxios.get.mockRejectedValue(appError);
+
+      await expect(
+        gateway.checkPaymentStatus({ transactionId: '12345' }),
+      ).rejects.toThrow(appError);
+    });
+
+    it('should handle string errors in checkPaymentStatus', async () => {
+      mockAxios.get.mockRejectedValue('String error');
+      mockAxios.isAxiosError.mockReturnValue(false);
 
       await expect(
         gateway.checkPaymentStatus({ transactionId: '12345' }),
@@ -319,6 +420,47 @@ describe('PaymentGateway', () => {
         gateway.cancelPayment({ transactionId: '12345' }),
       ).rejects.toThrow(AppError);
     });
+
+    it('should handle axios errors in cancelPayment', async () => {
+      const axiosError = {
+        isAxiosError: true,
+        response: { data: { message: 'Network error' } },
+      };
+
+      mockAxios.put.mockRejectedValue(axiosError);
+      mockAxios.isAxiosError.mockReturnValue(true);
+
+      await expect(
+        gateway.cancelPayment({ transactionId: '12345' }),
+      ).rejects.toThrow(AppError);
+    });
+
+    it('should handle non-axios errors in cancelPayment', async () => {
+      mockAxios.put.mockRejectedValue(new Error('Generic error'));
+      mockAxios.isAxiosError.mockReturnValue(false);
+
+      await expect(
+        gateway.cancelPayment({ transactionId: '12345' }),
+      ).rejects.toThrow(AppError);
+    });
+
+    it('should rethrow AppError when it is already an AppError', async () => {
+      const appError = AppError.internal({ message: 'Test error' });
+      mockAxios.put.mockRejectedValue(appError);
+
+      await expect(
+        gateway.cancelPayment({ transactionId: '12345' }),
+      ).rejects.toThrow(appError);
+    });
+
+    it('should handle string errors in cancelPayment', async () => {
+      mockAxios.put.mockRejectedValue('String error');
+      mockAxios.isAxiosError.mockReturnValue(false);
+
+      await expect(
+        gateway.cancelPayment({ transactionId: '12345' }),
+      ).rejects.toThrow(AppError);
+    });
   });
 
   describe('processPaymentCallback', () => {
@@ -379,6 +521,47 @@ describe('PaymentGateway', () => {
         status: 500,
         data: {},
       });
+
+      await expect(gateway.processPaymentCallback({})).rejects.toThrow(
+        AppError,
+      );
+    });
+
+    it('should handle axios errors in processPaymentCallback', async () => {
+      const axiosError = {
+        isAxiosError: true,
+        response: { data: { message: 'Network error' } },
+      };
+
+      mockAxios.post.mockRejectedValue(axiosError);
+      mockAxios.isAxiosError.mockReturnValue(true);
+
+      await expect(gateway.processPaymentCallback({})).rejects.toThrow(
+        AppError,
+      );
+    });
+
+    it('should handle non-axios errors in processPaymentCallback', async () => {
+      mockAxios.post.mockRejectedValue(new Error('Generic error'));
+      mockAxios.isAxiosError.mockReturnValue(false);
+
+      await expect(gateway.processPaymentCallback({})).rejects.toThrow(
+        AppError,
+      );
+    });
+
+    it('should rethrow AppError when it is already an AppError', async () => {
+      const appError = AppError.internal({ message: 'Test error' });
+      mockAxios.post.mockRejectedValue(appError);
+
+      await expect(gateway.processPaymentCallback({})).rejects.toThrow(
+        appError,
+      );
+    });
+
+    it('should handle string errors in processPaymentCallback', async () => {
+      mockAxios.post.mockRejectedValue('String error');
+      mockAxios.isAxiosError.mockReturnValue(false);
 
       await expect(gateway.processPaymentCallback({})).rejects.toThrow(
         AppError,
@@ -447,6 +630,92 @@ describe('PaymentGateway', () => {
         AppError,
       );
     });
+
+    it('should throw AppError when response status is not 200', async () => {
+      paymentRepository.findByTransactionId.mockResolvedValue(null);
+      mockAxios.get.mockResolvedValue({
+        status: 404,
+        data: {},
+      });
+
+      await expect(gateway.getExternalReference('12345')).rejects.toThrow(
+        AppError,
+      );
+    });
+
+    it('should handle axios errors in getExternalReference', async () => {
+      paymentRepository.findByTransactionId.mockResolvedValue(null);
+
+      const axiosError = {
+        isAxiosError: true,
+        response: { data: { message: 'Network error' } },
+      };
+
+      mockAxios.get.mockRejectedValue(axiosError);
+      mockAxios.isAxiosError.mockReturnValue(true);
+
+      await expect(gateway.getExternalReference('12345')).rejects.toThrow(
+        AppError,
+      );
+    });
+
+    it('should handle non-axios errors in getExternalReference', async () => {
+      paymentRepository.findByTransactionId.mockResolvedValue(null);
+
+      mockAxios.get.mockRejectedValue(new Error('Generic error'));
+      mockAxios.isAxiosError.mockReturnValue(false);
+
+      await expect(gateway.getExternalReference('12345')).rejects.toThrow(
+        AppError,
+      );
+    });
+
+    it('should rethrow AppError when it is already an AppError', async () => {
+      paymentRepository.findByTransactionId.mockResolvedValue(null);
+
+      const appError = AppError.internal({ message: 'Test error' });
+      mockAxios.get.mockRejectedValue(appError);
+
+      await expect(gateway.getExternalReference('12345')).rejects.toThrow(
+        appError,
+      );
+    });
+
+    it('should handle string errors in getExternalReference', async () => {
+      paymentRepository.findByTransactionId.mockResolvedValue(null);
+
+      mockAxios.get.mockRejectedValue('String error');
+      mockAxios.isAxiosError.mockReturnValue(false);
+
+      await expect(gateway.getExternalReference('12345')).rejects.toThrow(
+        AppError,
+      );
+    });
+
+    it('should fallback to external service when payment in DB has no orderId', async () => {
+      const transactionId = '12345';
+
+      // Payment found in DB but without orderId
+      paymentRepository.findByTransactionId.mockResolvedValue({
+        transactionId: '12345',
+        // orderId is undefined or null
+      } as any);
+
+      // External service returns valid data
+      mockAxios.get.mockResolvedValue({
+        status: 200,
+        data: { external_reference: '789' },
+      });
+
+      const result = await gateway.getExternalReference(transactionId);
+
+      expect(result).toEqual({ orderId: 789, transactionId });
+      // eslint-disable-next-line @typescript-eslint/unbound-method
+      expect(mockAxios.get).toHaveBeenCalledWith(
+        'https://api.payment.com/payments/12345',
+        expect.any(Object),
+      );
+    });
   });
 
   describe('updateStatus', () => {
@@ -477,6 +746,47 @@ describe('PaymentGateway', () => {
       paymentRepository.updateStatus.mockRejectedValue(
         new Error('Database error'),
       );
+
+      await expect(
+        gateway.updateStatus({
+          transactionId: '12345',
+          status: PaymentStatus.PAID,
+        }),
+      ).rejects.toThrow(AppError);
+    });
+
+    it('should handle axios errors in updateStatus', async () => {
+      const axiosError = {
+        isAxiosError: true,
+        response: { data: { message: 'Network error' } },
+      };
+
+      paymentRepository.updateStatus.mockRejectedValue(axiosError);
+      mockAxios.isAxiosError.mockReturnValue(true);
+
+      await expect(
+        gateway.updateStatus({
+          transactionId: '12345',
+          status: PaymentStatus.PAID,
+        }),
+      ).rejects.toThrow(AppError);
+    });
+
+    it('should rethrow AppError when it is already an AppError', async () => {
+      const appError = AppError.internal({ message: 'Test error' });
+      paymentRepository.updateStatus.mockRejectedValue(appError);
+
+      await expect(
+        gateway.updateStatus({
+          transactionId: '12345',
+          status: PaymentStatus.PAID,
+        }),
+      ).rejects.toThrow(appError);
+    });
+
+    it('should handle string errors in updateStatus', async () => {
+      paymentRepository.updateStatus.mockRejectedValue('String error');
+      mockAxios.isAxiosError.mockReturnValue(false);
 
       await expect(
         gateway.updateStatus({
