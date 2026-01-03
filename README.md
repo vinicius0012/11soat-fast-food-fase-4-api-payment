@@ -2,27 +2,12 @@
 
 ### 📊 Quality Metrics
 
-**Overall Code (Main Branch):**
-
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=vinicius0012_11soat-fast-food-fase-4-api-payment&metric=alert_status)](https://sonarcloud.io/dashboard?id=vinicius0012_11soat-fast-food-fase-4-api-payment)
 [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=vinicius0012_11soat-fast-food-fase-4-api-payment&metric=coverage)](https://sonarcloud.io/dashboard?id=vinicius0012_11soat-fast-food-fase-4-api-payment)
-[![Duplicated Lines (%)](https://sonarcloud.io/api/project_badges/measure?project=vinicius0012_11soat-fast-food-fase-4-api-payment&metric=duplicated_lines_density)](https://sonarcloud.io/dashboard?id=vinicius0012_11soat-fast-food-fase-4-api-payment)
-
 [![Bugs](https://sonarcloud.io/api/project_badges/measure?project=vinicius0012_11soat-fast-food-fase-4-api-payment&metric=bugs)](https://sonarcloud.io/dashboard?id=vinicius0012_11soat-fast-food-fase-4-api-payment)
-[![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=vinicius0012_11soat-fast-food-fase-4-api-payment&metric=vulnerabilities)](https://sonarcloud.io/dashboard?id=vinicius0012_11soat-fast-food-fase-4-api-payment)
-[![Security Hotspots](https://sonarcloud.io/api/project_badges/measure?project=vinicius0012_11soat-fast-food-fase-4-api-payment&metric=security_hotspots)](https://sonarcloud.io/dashboard?id=vinicius0012_11soat-fast-food-fase-4-api-payment)
 [![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=vinicius0012_11soat-fast-food-fase-4-api-payment&metric=code_smells)](https://sonarcloud.io/dashboard?id=vinicius0012_11soat-fast-food-fase-4-api-payment)
-
-[![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=vinicius0012_11soat-fast-food-fase-4-api-payment&metric=reliability_rating)](https://sonarcloud.io/dashboard?id=vinicius0012_11soat-fast-food-fase-4-api-payment)
 [![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=vinicius0012_11soat-fast-food-fase-4-api-payment&metric=security_rating)](https://sonarcloud.io/dashboard?id=vinicius0012_11soat-fast-food-fase-4-api-payment)
-[![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=vinicius0012_11soat-fast-food-fase-4-api-payment&metric=sqale_rating)](https://sonarcloud.io/dashboard?id=vinicius0012_11soat-fast-food-fase-4-api-payment)
-
-**New Code (PRs and Recent Changes):**
-
-[![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=vinicius0012_11soat-fast-food-fase-4-api-payment&metric=ncloc)](https://sonarcloud.io/summary/new_code?id=vinicius0012_11soat-fast-food-fase-4-api-payment)
-[![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=vinicius0012_11soat-fast-food-fase-4-api-payment&metric=reliability_rating)](https://sonarcloud.io/summary/new_code?id=vinicius0012_11soat-fast-food-fase-4-api-payment)
-[![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=vinicius0012_11soat-fast-food-fase-4-api-payment&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=vinicius0012_11soat-fast-food-fase-4-api-payment)
-[![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=vinicius0012_11soat-fast-food-fase-4-api-payment&metric=vulnerabilities)](https://sonarcloud.io/summary/new_code?id=vinicius0012_11soat-fast-food-fase-4-api-payment)
+[![Duplicated Lines (%)](https://sonarcloud.io/api/project_badges/measure?project=vinicius0012_11soat-fast-food-fase-4-api-payment&metric=duplicated_lines_density)](https://sonarcloud.io/dashboard?id=vinicius0012_11soat-fast-food-fase-4-api-payment)
 
 ## Sobre o Projeto
 
