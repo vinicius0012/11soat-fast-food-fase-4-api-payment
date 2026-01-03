@@ -15,7 +15,7 @@ export class GetExternalReferenceByTransactionUseCase {
       const externalReference =
         await this.paymentService.getExternalReference(transactionId);
 
-      if (!externalReference || !externalReference.orderId) {
+      if (!externalReference?.orderId) {
         throw AppError.notFound({
           message: 'Order ID not found for the given transaction ID',
         });

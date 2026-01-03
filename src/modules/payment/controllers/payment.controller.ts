@@ -31,7 +31,7 @@ import { PaymentRepository } from 'src/infrastructure/database/mongo/repositorie
 @ApiTags('payment')
 @Controller('payment')
 export class PaymentController {
-  private cleanArchController: CleanArchPaymentController;
+  private readonly cleanArchController: CleanArchPaymentController;
 
   constructor(
     private readonly configService: ConfigService,
