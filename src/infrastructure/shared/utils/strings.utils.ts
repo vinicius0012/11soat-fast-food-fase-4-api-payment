@@ -3,7 +3,7 @@ export function removeMask(
   mask: string,
   maskChar: string = 'X',
 ): string {
-  const regex = new RegExp(mask.replace(/X/g, '\\d'), 'g');
+  const regex = new RegExp(mask.replaceAll('X', '\\d'), 'g');
   return value.replace(regex, maskChar);
 }
 
