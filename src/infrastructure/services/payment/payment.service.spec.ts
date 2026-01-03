@@ -10,7 +10,7 @@ jest.mock('axios');
 jest.mock('src/application/presenters/payments/payment.mapper');
 jest.mock('src/infrastructure/shared/utils/payment.util');
 
-describe.skip('PaymentServiceImpl', () => {
+describe('PaymentServiceImpl', () => {
   let service: PaymentServiceImpl;
   let configService: jest.Mocked<ConfigService>;
   const mockAxios = axios as jest.Mocked<typeof axios>;
