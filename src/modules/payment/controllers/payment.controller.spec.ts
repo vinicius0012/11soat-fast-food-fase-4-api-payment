@@ -99,7 +99,7 @@ describe('PaymentController', () => {
       const result = await controller.createPayment(createPaymentDto);
 
       expect(result).toEqual(expectedResult);
-      // eslint-disable-next-line @typescript-eslint/unbound-method, @typescript-eslint/no-unsafe-member-access
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       expect(cleanArchController.createPayment).toHaveBeenCalledWith(
         createPaymentDto,
       );
@@ -146,7 +146,7 @@ describe('PaymentController', () => {
       const result = await controller.getPaymentStatus(transactionId);
 
       expect(result).toEqual(expectedResult);
-      // eslint-disable-next-line @typescript-eslint/unbound-method, @typescript-eslint/no-unsafe-member-access
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       expect(cleanArchController.getPaymentStatus).toHaveBeenCalledWith(
         transactionId,
       );
@@ -180,7 +180,7 @@ describe('PaymentController', () => {
       const result = await controller.updateStatusPayment(transactionId);
 
       expect(result).toEqual(expectedResult);
-      // eslint-disable-next-line @typescript-eslint/unbound-method, @typescript-eslint/no-unsafe-member-access
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       expect(cleanArchController.updatePaymentStatus).toHaveBeenCalledWith(
         transactionId,
       );
@@ -223,7 +223,7 @@ describe('PaymentController', () => {
       const result = await controller.cancelPayment(transactionId);
 
       expect(result).toEqual(expectedResult);
-      // eslint-disable-next-line @typescript-eslint/unbound-method, @typescript-eslint/no-unsafe-member-access
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       expect(cleanArchController.cancelPayment).toHaveBeenCalledWith(
         transactionId,
       );
@@ -261,7 +261,7 @@ describe('PaymentController', () => {
       const result = await controller.processWebhook(payload);
 
       expect(result).toEqual(expectedResult);
-      // eslint-disable-next-line @typescript-eslint/unbound-method, @typescript-eslint/no-unsafe-member-access
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       expect(cleanArchController.processWebhook).toHaveBeenCalledWith(payload);
     });
 
