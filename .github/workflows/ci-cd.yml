@@ -97,6 +97,10 @@ jobs:
     runs-on: ubuntu-latest
     needs: [eslint, typecheck, sonarcloud]
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
     outputs:
       new_tag: ${{ steps.get_version.outputs.version }}
     steps:
