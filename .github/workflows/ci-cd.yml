@@ -58,11 +58,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: coverage
-          path: |
-            coverage/lcov.info
-            coverage/lcov-report
-            coverage/coverage-final.json
-            coverage/clover.xml
+          path: coverage/
 
   sonarcloud:
     name: SonarCloud Analysis
@@ -80,7 +76,7 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           name: coverage
-          path: .
+          path: coverage
 
       - name: Debug coverage path
         run: |
