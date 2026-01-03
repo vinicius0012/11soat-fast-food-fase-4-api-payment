@@ -13,10 +13,10 @@
 
 **New Code (PRs and Recent Changes):**
 
-[![New Coverage](https://sonarcloud.io/api/project_badges/measure?project=vinicius0012_11soat-fast-food-fase-4-api-payment&metric=new_coverage&branch=main)](https://sonarcloud.io/summary/new_code?id=vinicius0012_11soat-fast-food-fase-4-api-payment)
-[![New Bugs](https://sonarcloud.io/api/project_badges/measure?project=vinicius0012_11soat-fast-food-fase-4-api-payment&metric=new_bugs&branch=main)](https://sonarcloud.io/summary/new_code?id=vinicius0012_11soat-fast-food-fase-4-api-payment)
-[![New Code Smells](https://sonarcloud.io/api/project_badges/measure?project=vinicius0012_11soat-fast-food-fase-4-api-payment&metric=new_code_smells&branch=main)](https://sonarcloud.io/summary/new_code?id=vinicius0012_11soat-fast-food-fase-4-api-payment)
-[![New Duplicated Lines](https://sonarcloud.io/api/project_badges/measure?project=vinicius0012_11soat-fast-food-fase-4-api-payment&metric=new_duplicated_lines_density&branch=main)](https://sonarcloud.io/summary/new_code?id=vinicius0012_11soat-fast-food-fase-4-api-payment)
+[![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=vinicius0012_11soat-fast-food-fase-4-api-payment&metric=ncloc)](https://sonarcloud.io/summary/new_code?id=vinicius0012_11soat-fast-food-fase-4-api-payment)
+[![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=vinicius0012_11soat-fast-food-fase-4-api-payment&metric=reliability_rating)](https://sonarcloud.io/summary/new_code?id=vinicius0012_11soat-fast-food-fase-4-api-payment)
+[![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=vinicius0012_11soat-fast-food-fase-4-api-payment&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=vinicius0012_11soat-fast-food-fase-4-api-payment)
+[![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=vinicius0012_11soat-fast-food-fase-4-api-payment&metric=vulnerabilities)](https://sonarcloud.io/summary/new_code?id=vinicius0012_11soat-fast-food-fase-4-api-payment)
 
 ## Sobre o Projeto
 
