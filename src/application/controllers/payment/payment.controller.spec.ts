@@ -8,7 +8,7 @@ import { PaymentPresenter } from 'src/application/presenters/payments/payments.p
 
 jest.mock('src/application/presenters/payments/payments.presenter');
 
-describe.skip('PaymentController', () => {
+describe('PaymentController', () => {
   let controller: PaymentController;
   let paymentService: jest.Mocked<PaymentServicePort>;
 
