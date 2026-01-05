@@ -472,5 +472,4 @@ O endpoint `/health` fornece informações sobre:
 
 **Documentação**: [Swagger UI](http://localhost:1337/api-docs)  
 **Collections para testes**: [Collection payment](https://drive.google.com/file/d/12WmL1zfXAoUVktYUGq4pYm_CDR5q-NO4/view?usp=sharing)  
-**CI/CD**: GitHub Actions  
 **Quality Gate**: [SonarCloud](https://sonarcloud.io/dashboard?id=vinicius0012_11soat-fast-food-fase-4-api-payment)
