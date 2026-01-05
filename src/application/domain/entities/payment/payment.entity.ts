@@ -10,7 +10,7 @@ interface PyamentClientEntity {
 interface PaymentDataItem {
   id: string;
   title: string | null;
-  description: string;
+  description?: string | null;
   picture_url: string;
   category_id: string;
   quantity: number;
@@ -27,6 +27,7 @@ export class PaymentEntity {
   qrCodeString?: string;
   urlPayment: string;
   amount: number;
+  description?: string | null;
   expirationDate?: Date;
   client?: PyamentClientEntity | null;
   status: PaymentStatus;

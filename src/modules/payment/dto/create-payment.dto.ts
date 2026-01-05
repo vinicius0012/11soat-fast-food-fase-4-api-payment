@@ -24,8 +24,8 @@ export class CreatePaymentDto {
     example: 'Pedido #12345 - Combo Especial',
   })
   @IsString()
-  @IsNotEmpty()
-  description: string;
+  @IsOptional()
+  description?: string | null;
 
   @ApiPropertyOptional({
     description: 'ID do pedido associado ao pagamento',

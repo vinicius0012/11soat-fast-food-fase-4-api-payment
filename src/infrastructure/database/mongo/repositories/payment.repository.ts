@@ -14,7 +14,7 @@ export interface CreatePaymentParams {
   qrCodeString?: string;
   urlPayment: string;
   amount: number;
-  description?: string;
+  description?: string | null;
   expirationDate?: Date;
   client?: Client | null;
   status: string;
@@ -42,7 +42,7 @@ export class PaymentRepository {
       qrCodeString: data.qrCodeString,
       urlPayment: data.urlPayment,
       amount: data.amount,
-      description: data.description,
+      ...(!!data?.description && { description: data.description }),
       expirationDate: data.expirationDate,
       client: data.client,
       status: data.status,
