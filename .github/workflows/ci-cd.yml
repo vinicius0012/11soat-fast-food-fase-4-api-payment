@@ -183,6 +183,9 @@ jobs:
       - name: Who am I (deploy role)
         run: aws sts get-caller-identity
 
+      - name: List deployments
+        run: kubectl -n fastfood get deploy
+
       - name: Install kubectl
         run: |
           set -e
