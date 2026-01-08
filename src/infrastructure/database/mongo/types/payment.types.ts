@@ -10,7 +10,7 @@ export interface Client {
 export interface PaymentItems {
   id: string;
   title: string | null;
-  description: string;
+  description?: string | null;
   picture_url: string;
   category_id: string;
   quantity: number;

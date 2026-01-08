@@ -79,7 +79,7 @@ export class PaymentGateway implements PaymentServicePort {
         qrCodeString: paymentResponse.qrCodeString,
         urlPayment: paymentResponse.urlPayment,
         amount: paymentResponse.amount,
-        description: data.description,
+        description: data.description ?? null,
         expirationDate: paymentResponse.expirationDate,
         client: data.client,
         status: paymentResponse.status,

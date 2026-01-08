@@ -13,7 +13,7 @@ interface PyamentClientEntity {
 interface PaymentItems {
   id: string;
   title: string | null;
-  description: string;
+  description?: string | null;
   picture_url: string;
   category_id: string;
   quantity: number;
@@ -25,7 +25,7 @@ interface PaymentItems {
 
 export interface CreatePaymentDto {
   amount: number;
-  description?: string;
+  description?: string | null;
   orderId?: number;
   callbackUrl?: string;
   expirationMinutes?: number;
@@ -40,6 +40,7 @@ export interface PaymentDtoResponse {
   qrCodeString?: string;
   urlPayment: string;
   amount: number;
+  description?: string | null;
   expirationDate?: Date;
   client?: PyamentClientEntity | null;
   status: PaymentStatus;
@@ -76,7 +77,7 @@ export interface PaymentExternalResponseDataInterface {
 export interface PaymentDataItem {
   id: string;
   title: string | null;
-  description: string;
+  description?: string | null;
   picture_url: string;
   category_id: string;
   quantity: number;
@@ -104,7 +105,7 @@ export interface PaymentDataAdditionalInfo {
 
 export interface PaymentExternalSentDataInterface {
   transaction_amount: number;
-  description: string;
+  description?: string | null;
   payment_method_id: string;
   payer?: PaymentDataPayer;
   external_reference: string;

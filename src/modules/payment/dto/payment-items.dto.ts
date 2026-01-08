@@ -30,7 +30,7 @@ export class PaymentItemsDto {
   })
   @IsNumber()
   @IsOptional()
-  description: string;
+  description?: string | null;
 
   @ApiPropertyOptional({
     description: 'URL da imagem do item',

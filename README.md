@@ -1,4 +1,4 @@
-# Sistema de Controle de Pedidos Fast Totem.
+# Microserviço de Pagamento - Fast Food Totem
 
 ### 📊 Quality Metrics
 
@@ -11,49 +11,53 @@
 [![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=vinicius0012_11soat-fast-food-fase-4-api-payment&metric=security_rating)](https://sonarcloud.io/dashboard?id=vinicius0012_11soat-fast-food-fase-4-api-payment)
 [![Duplicated Lines (%)](https://sonarcloud.io/api/project_badges/measure?project=vinicius0012_11soat-fast-food-fase-4-api-payment&metric=duplicated_lines_density)](https://sonarcloud.io/dashboard?id=vinicius0012_11soat-fast-food-fase-4-api-payment)
 
-## Sobre o Projeto
+## 📋 Sobre o Projeto
 
-O **Sistema de Controle de Pedidos** é uma solução completa de autoatendimento para restaurantes que visa eliminar falhas de comunicação e otimizar o processo de pedidos. O sistema permite que clientes façam pedidos personalizados diretamente pela plataforma, desde a consulta ao cardápio até o pagamento, garantindo que a cozinha receba informações precisas sobre o que preparar.
+O **Microserviço de Pagamento** é parte integrante do ecossistema Fast Food Totem, sendo responsável exclusivamente pelo processamento e gerenciamento de pagamentos através da integração com o **Mercado Pago**. Este serviço opera de forma independente, seguindo os princípios de arquitetura de microserviços.
 
-## Objetivos Principais
+## 🎯 Objetivos Principais
 
-- **Eliminar falhas de comunicação**: Evitar que pedidos sejam perdidos, mal interpretados ou esquecidos.
-- **Controle de estoque integrado**: Informar à cozinha quais itens estão disponíveis, impedindo pedidos que não podem ser concluídos.
-- **Acompanhamento em tempo real**: Manter clientes informados sobre o status de seus pedidos.
-- **Redução de perdas**: Minimizar a insatisfação dos clientes e perda de negócios por problemas operacionais.
+- **Processamento de Pagamentos**: Integração robusta com Mercado Pago para criação e gestão de transações
+- **Geração de QR Code**: Criação de códigos QR para pagamento via PIX através do Mercado Pago
+- **Monitoramento de Status**: Consulta em tempo real do status das transações de pagamento
+- **Gestão de Webhooks**: Processamento automático de notificações do Mercado Pago
+- **Rastreabilidade**: Vínculo entre pedidos e transações de pagamento através de referências externas
 
-## Funcionalidades
+## 🏗️ Arquitetura
 
-### 🛒 Autoatendimento
+Este microserviço foi desenvolvido seguindo os princípios de **Clean Architecture** e **Hexagonal Architecture**, garantindo:
 
-- Interface intuitiva para montagem de pedidos
-- Opção de identificação do cliente (**CPF**, **nome** e **e-mail**) para análise de dados
-- Exibição completa do cardápio com **nome**, **descrição** e **preço** de cada item
-- Personalização de pedidos conforme disponibilidade do estoque
+- **Separação de responsabilidades**: Domínio, aplicação e infraestrutura bem definidos
+- **Independência de frameworks**: Lógica de negócio isolada de detalhes técnicos
+- **Testabilidade**: Alta cobertura de testes unitários e de integração
+- **Manutenibilidade**: Código organizado e de fácil evolução
 
-### 💳 Sistema de Pagamento
+### Stack Tecnológica
 
-- Integração com **Mercado Pago** via QR Code
-- Processamento automático de pagamentos
-- Encaminhamento direto para preparação após confirmação do pagamento
+- **Framework**: NestJS
+- **Linguagem**: TypeScript
+- **Banco de Dados**: MongoDB
+- **Gateway de Pagamento**: Mercado Pago API
+- **Documentação**: Swagger/OpenAPI
+- **Validação**: Class-validator
+- **Autenticação**: JWT (JSON Web Tokens)
 
-### 📊 Acompanhamento de Pedidos
+## 🚀 Funcionalidades
 
-Status em tempo real para o cliente:
+### 💳 Gestão de Pagamentos
 
-- **Recebido**: Pedido confirmado pelo sistema
-- **Em Preparação**: Cozinha iniciou o preparo
-- **Pronto**: Pedido finalizado e disponível para retirada
-- **Finalizado**: Pedido entregue ao cliente
+- **Criar Pagamento**: Geração de nova transação com QR Code para pagamento via PIX
+- **Consultar Status**: Verificação do status atual de uma transação pelo ID
+- **Atualizar Status**: Atualização manual do status de pagamento
+- **Cancelar Pagamento**: Cancelamento de transações com motivo opcional
+- **Buscar Referência Externa**: Recuperação da referência do pedido através do ID da transação
 
-### 🔧 Painel Administrativo
+### 🔔 Processamento de Webhooks
 
-Funcionalidades para funcionários autorizados:
-
-- **Gestão de produtos**: Criar, editar, remover e buscar itens do cardápio
-- **Controle de categorias**: Organização do cardápio por categorias
-- **Gestão de estoque**: Controle de disponibilidade de ingredientes
-- **Relatórios**: Análise de dados de vendas e preferências dos clientes
+- Recebimento automático de notificações do Mercado Pago
+- Validação de assinatura do webhook
+- Processamento assíncrono de atualizações de status
+- Registro de eventos para auditoria
 
 ## ⚙️ Configuração do Ambiente
 
@@ -63,156 +67,409 @@ Crie o arquivo .env na raiz do projeto
 Copie o conteúdo do arquivo .env.example como base
 Configure as variáveis de acordo com seu ambiente local
 
-```bash
-cp .env.example .env
-```
+⚠️ **Importante**: 
+- Obtenha suas credenciais do Mercado Pago em: https://www.mercadopago.com.br/developers
+- O `WEBHOOK_URL` deve ser um endpoint público acessível pelo Mercado Pago
+- Nunca compartilhe suas credenciais de produção
 
-⚠️ Importante: Certifique-se de configurar todas as variáveis necessárias no arquivo .env antes de iniciar a aplicação.
+## 🐳 Executar com Docker Compose
 
-## 🐳 Rodar o projeto com Docker Compose
-
-Para facilitar o gerenciamento do seu projeto com Docker Compose, utilize os comandos abaixo:
+Para facilitar o gerenciamento do projeto com Docker Compose, utilize os comandos abaixo:
 
 ```bash
 # Subir todos os serviços em modo destacado (background)
 docker-compose up -d
 
+# Visualizar logs da aplicação
+docker-compose logs -f app
+
+# Visualizar logs do MongoDB
+docker-compose logs -f db
+
 # Parar todos os serviços
 docker-compose down
+
+# Parar e remover volumes (limpar banco de dados)
+docker-compose down -v
 ```
 
-## 🛠️ Configuração do projeto
+## 🛠️ Instalação e Configuração Local
+
+### Pré-requisitos
+
+- Node.js 18+ 
+- NPM ou Yarn
+- MongoDB 7.0+
+
+### Instalação de Dependências
 
 ```bash
-$ npm install
+# Usando NPM
+npm install
+
+# Ou usando Yarn
+yarn install
 ```
 
-## ▶️ Compile e execute o projeto
+### Executar Localmente
 
 ```bash
-# Build do projeto
+# Modo desenvolvimento (com hot-reload)
+npm run start:dev
+
+# Modo produção
 npm run build
+npm run start:prod
 
-# Iniciar a aplicação
-npm run start
+# Modo debug
+npm run start:debug
 ```
 
-## 🚀 Fluxos de Utilização da API
+## 🧪 Testes
 
-A API possui dois fluxos principais de utilização. Siga os passos abaixo na ordem indicada:
+O projeto possui alta cobertura de testes seguindo as melhores práticas de TDD e Clean Architecture.
 
-### 🔐 Fluxo Administrativo (Colaboradores)
+```bash
+# Executar todos os testes
+npm run test
 
-Para funcionários que gerenciam o sistema:
+# Executar testes em modo watch
+npm run test:watch
 
-#### 1. Criar Colaborador
+# Gerar relatório de cobertura
+npm run test:coverage
 
-Endpoint: POST /collaborators
+# Executar testes E2E
+npm run test:e2e
 
-- Campos obrigatórios:
-  - document,
-  - name,
-  - email,
-  - type (admin/operator/manager/supervisor),
-  - status (active/inactive),
-  - password
+# Debug de testes
+npm run test:debug
+```
 
-#### 2. Fazer Login
+### Cobertura de Testes
 
-Endpoint: POST /authentication/login
+O projeto mantém uma cobertura de testes superior a **80%**, incluindo:
 
-- Credenciais:
-  - document,
-  - email,
-  - password
-- Resultado:
-  - Token JWT para autenticação
+- ✅ Testes unitários de Use Cases
+- ✅ Testes unitários de Controllers
+- ✅ Testes unitários de Mappers e Presenters
+- ✅ Testes unitários de Guards
+- ✅ Testes de integração com MongoDB
+- ✅ Testes E2E dos endpoints
 
-#### 3. Configurar Sistema (ordem flexível)
+## 🚀 Endpoints da API
 
-- Categorias: POST /categories - Criar categorias do cardápio
-- Itens de Produto: POST /product-items/register - Cadastrar ingredientes/componentes
-- Produtos: POST /products - Criar produtos vinculando categorias e itens
+Este microserviço expõe os seguintes endpoints para gerenciamento de pagamentos:
 
-#### 4. Gerenciar Pedidos
+### 💳 Criação de Pagamento
 
-- Listar prontos para preparo: GET /orders/ready-prepare
-- Iniciar preparo: PATCH /orders/{id}/initiate-preparation
-- Finalizar preparo: PATCH /orders/{id}/finish-preparation
-- Finalizar pedido: PATCH /orders/{id}/finish-order
+**Endpoint**: `POST /payment/create`
 
-### 🛍️ Fluxo do Cliente (Pedidos)
+Cria uma nova transação de pagamento e gera um QR Code para pagamento via PIX.
 
-Para clientes realizando pedidos:
+**Request Body**:
+```json
+{
+  "amount": 100.50,
+  "description": "Pagamento do Pedido #123",
+  "orderId": "order_123",
+  "callbackUrl": "https://seu-sistema.com/callback",
+  "expirationMinutes": 30
+}
+```
 
-#### 1. Identificação do Cliente (opcional)
+**Response**:
+```json
+{
+  "transactionId": "12345678",
+  "qrCode": "https://mercadopago.com.br/...",
+  "qrCodeBase64": "data:image/png;base64,...",
+  "status": "pending",
+  "amount": 100.50,
+  "externalReference": "order_123"
+}
+```
 
-- Opção A: POST /clients/create - Criar conta com dados pessoais
-- Opção B: POST /clients/identity-client - Identificar-se por CPF
+### 📊 Consultar Status do Pagamento
 
-#### 2. Criar Pedido
+**Endpoint**: `GET /payment/status/{transactionId}`
 
-- Endpoint: POST /orders
-  - Requisitos: Informar clientId e selecionar produtos existentes
-  - Resultado: Pedido criado com status "Recebido"
+Retorna o status atual de uma transação de pagamento.
 
-#### 3. Realizar Pagamento
+**Response**:
+```json
+{
+  "transactionId": "12345678",
+  "status": "approved",
+  "statusDetail": "accredited",
+  "amount": 100.50,
+  "externalReference": "order_123"
+}
+```
 
-Endpoint: POST /payment/create
+**Possíveis Status**:
+- `pending`: Pagamento pendente
+- `approved`: Pagamento aprovado
+- `authorized`: Pagamento autorizado
+- `in_process`: Em processamento
+- `in_mediation`: Em mediação
+- `rejected`: Pagamento rejeitado
+- `cancelled`: Pagamento cancelado
+- `refunded`: Pagamento reembolsado
+- `charged_back`: Estornado
 
-- Campos:
-  - amount,
-  - description,
-  - orderId,
-  - callbackUrl,
-  - expirationMinutes
+### 🔄 Atualizar Status do Pagamento
 
-- Resultado:
-  - URL com QR Code do Mercado Pago
+**Endpoint**: `PATCH /payment/status/{transactionId}`
 
-#### 4. Acompanhar Pedido
+Atualiza manualmente o status de um pagamento consultando o Mercado Pago.
 
-- Buscar por ID: GET /orders/{id}
-- Consultar status do pagamento: GET /payment/status/{transactionId}
+**Response**:
+```json
+{
+  "message": "Pagamento atualizado com sucesso",
+  "result": {
+    "transactionId": "12345678",
+    "status": "approved"
+  }
+}
+```
+
+### ❌ Cancelar Pagamento
+
+**Endpoint**: `DELETE /payment/{transactionId}`
+
+Cancela uma transação de pagamento.
+
+**Query Parameters** (opcional):
+- `reason`: Motivo do cancelamento
+
+**Response**:
+```json
+{
+  "message": "Pagamento cancelado com sucesso"
+}
+```
+
+### 🔍 Buscar Referência Externa
+
+**Endpoint**: `GET /payment/external-reference/{transactionId}`
+
+Retorna a referência externa (orderId) vinculada a uma transação.
+
+**Response**:
+```json
+{
+  "transactionId": "12345678",
+  "externalReference": "order_123"
+}
+```
+
+### 🔔 Webhook do Mercado Pago
+
+**Endpoint**: `POST /payment/webhook`
+
+Endpoint para receber notificações automáticas do Mercado Pago sobre mudanças no status dos pagamentos.
+
+⚠️ **Importante**: Este endpoint deve ser configurado no painel do Mercado Pago e possui validação de assinatura.
+
+**Request Body** (exemplo):
+```json
+{
+  "action": "payment.updated",
+  "data": {
+    "id": "12345678"
+  }
+}
+```
+
+**Response**:
+```json
+{
+  "message": "Webhook processado com sucesso",
+  "result": {
+    "processed": true
+  }
+}
+```
+
+### 🏥 Health Check
+
+**Endpoint**: `GET /health`
+
+Verifica o status de saúde do serviço.
+
+**Response**:
+```json
+{
+  "status": "ok",
+  "info": {
+    "mongodb": {
+      "status": "up"
+    }
+  }
+}
+```
 
 ## 📋 Documentação da API (Swagger)
 
 A documentação completa da API está disponível via Swagger UI com interface interativa para teste dos endpoints.
-Como acessar o Swagger:
 
-Certifique-se de que o ambiente está configurado:
+### Como Acessar o Swagger
 
-Arquivo .env criado e configurado
-Docker e Docker Compose instalados
+1. **Certifique-se de que o ambiente está configurado**:
+   - Arquivo `.env` criado e configurado
+   - Docker e Docker Compose instalados
 
-Inicie os serviços:
+2. **Inicie os serviços**:
 
 ```bash
 docker-compose up -d
 ```
 
-Aguarde a inicialização completa:
+3. **Aguarde a inicialização completa**:
+   - O MongoDB será inicializado
+   - A aplicação estará disponível na porta **1337**
 
-O sistema executará automaticamente as migrações do Prisma
-Os dados iniciais (seeds) serão inseridos no banco
-O servidor estará disponível na porta 1337
-
-Acesse a documentação:
+4. **Acesse a documentação**:
 
 [➡️ http://localhost:1337/api-docs](http://localhost:1337/api-docs)
 
-Recursos disponíveis no Swagger:
+### Recursos Disponíveis no Swagger
 
-- Teste de endpoints em tempo real
-- Autenticação JWT integrada (clique em "Authorize" para inserir o token)
-- Exemplos de requisições e respostas
-- Esquemas de dados detalhados
-- Códigos de status HTTP
+- ✅ Teste de endpoints em tempo real
+- ✅ Autenticação JWT integrada (clique em "Authorize" para inserir o token)
+- ✅ Exemplos de requisições e respostas
+- ✅ Esquemas de dados detalhados (DTOs)
+- ✅ Códigos de status HTTP com descrições
+- ✅ Validação de campos obrigatórios
 
-Credenciais de teste:
-Para testar endpoints que requerem autenticação, utilize:
+### Testando a API
 
-- document: 22272874207
-- Senha: pass@123
+#### Fluxo Completo de Pagamento
 
-💡 Dica: Primeiro faça login no endpoint de autenticação, copie o token JWT retornado e use o botão "Authorize" no topo da página do Swagger para configurar a autenticação.
+1. **Criar Pagamento**:
+   ```
+   POST /payment/create
+   ```
+   - Informe o valor, descrição e ID do pedido
+   - Receba o QR Code e ID da transação
+
+2. **Consultar Status**:
+   ```
+   GET /payment/status/{transactionId}
+   ```
+   - Use o ID da transação recebido no passo anterior
+   - Verifique o status atual do pagamento
+
+3. **Simular Webhook** (em ambiente de testes):
+   ```
+   POST /payment/webhook
+   ```
+   - Simule notificações do Mercado Pago
+
+4. **Cancelar se Necessário**:
+   ```
+   DELETE /payment/{transactionId}
+   ```
+   - Cancele pagamentos pendentes
+
+💡 **Dica**: Em ambiente de desenvolvimento, você pode usar o [Webhook.site](https://webhook.site) para testar o recebimento de webhooks do Mercado Pago.
+
+## 🏛️ Estrutura do Projeto
+
+O projeto segue os princípios de **Clean Architecture** e está organizado da seguinte forma:
+
+```
+src/
+├── application/
+│   ├── controllers/          # Controladores HTTP
+│   │   └── payment/
+│   ├── domain/               # Entidades e regras de negócio
+│   │   ├── dtos/            # Data Transfer Objects
+│   │   ├── entities/        # Entidades do domínio
+│   │   ├── errors/          # Erros customizados
+│   │   └── value-objects/   # Objetos de valor
+│   ├── ports/               # Interfaces (Portas)
+│   │   ├── input/          # Casos de uso
+│   │   └── output/         # Repositórios
+│   ├── presenters/          # Formatadores de resposta
+│   └── use-cases/           # Casos de uso (lógica de negócio)
+│       └── payment/
+├── infrastructure/          # Implementações técnicas
+│   ├── database/           # Conexão e repositórios
+│   │   └── mongo/
+│   ├── gateways/           # Integrações externas
+│   │   └── payment/        # Gateway Mercado Pago
+│   ├── guards/             # Guardas de autenticação
+│   └── shared/             # Utilitários compartilhados
+├── modules/                # Módulos NestJS
+│   ├── health/            # Health check
+│   └── payment/           # Módulo de pagamento
+├── app.module.ts          # Módulo principal
+├── configuration.ts       # Configurações
+└── main.ts               # Bootstrap da aplicação
+```
+
+### Camadas da Arquitetura
+
+#### 🎯 Domain (Domínio)
+- **Entidades**: Representam os conceitos principais do negócio (Payment)
+- **Value Objects**: Objetos imutáveis que representam valores (PaymentStatus)
+- **DTOs**: Contratos de dados entre camadas
+- **Errors**: Exceções de domínio customizadas
+
+#### 💼 Application (Aplicação)
+- **Use Cases**: Implementam as regras de negócio
+  - `CreatePaymentUseCase`: Criação de pagamentos
+  - `GetPaymentStatusUseCase`: Consulta de status
+  - `CancelPaymentUseCase`: Cancelamento de pagamentos
+  - `ProcessPaymentWebhookUseCase`: Processamento de webhooks
+  - `UpdatePaymentStatusWithTransactionIdUseCase`: Atualização de status
+  - `GetExternalReferenceByTransactionUseCase`: Busca de referência
+- **Controllers**: Recebem requisições HTTP
+- **Presenters**: Formatam respostas para o cliente
+
+#### 🔧 Infrastructure (Infraestrutura)
+- **Database**: Implementação do MongoDB com repositórios
+- **Gateways**: Integração com Mercado Pago API
+- **Guards**: Validação de webhooks e autenticação JWT
+- **Shared**: Utilitários e helpers
+
+## 🔄 Integração com Mercado Pago
+
+### Fluxo de Pagamento
+
+1. **Cliente solicita pagamento** → API cria transação no Mercado Pago
+2. **Mercado Pago retorna QR Code** → Cliente escaneia e paga
+3. **Mercado Pago processa pagamento** → Envia webhook para nossa API
+4. **API atualiza status** → Notifica sistema de pedidos
+
+### Configuração no Mercado Pago
+
+1. Acesse o [Painel de Desenvolvedores](https://www.mercadopago.com.br/developers)
+2. Crie uma aplicação
+3. Obtenha o **Access Token**
+4. Configure a URL do webhook: `https://seu-dominio.com/payment/webhook`
+5. Selecione os eventos: `payment.created`, `payment.updated`
+
+### Ambiente de Testes (Sandbox)
+
+O Mercado Pago oferece um ambiente de testes:
+- Use credenciais de teste do painel
+- Utilize cartões de teste para simular pagamentos
+- Webhooks funcionam normalmente
+
+## 📊 Monitoramento e Observabilidade
+
+### Health Check
+O endpoint `/health` fornece informações sobre:
+- Status da aplicação
+- Conexão com MongoDB
+- Tempo de resposta
+
+---
+
+**Documentação**: [Swagger UI](http://localhost:1337/api-docs)  
+**Collections para testes**: [Collection payment](https://drive.google.com/file/d/12WmL1zfXAoUVktYUGq4pYm_CDR5q-NO4/view?usp=sharing)  
+**Quality Gate**: [SonarCloud](https://sonarcloud.io/dashboard?id=vinicius0012_11soat-fast-food-fase-4-api-payment)
