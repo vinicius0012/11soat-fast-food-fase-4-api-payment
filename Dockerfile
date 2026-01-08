@@ -10,8 +10,6 @@ RUN npm install
 
 COPY . .
 
-RUN npx prisma generate
-
 EXPOSE 1337
 
 CMD ["npm", "run", "build:deploy"]
