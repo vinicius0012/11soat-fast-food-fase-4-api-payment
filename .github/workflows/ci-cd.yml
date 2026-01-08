@@ -176,7 +176,7 @@ jobs:
 
       - uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/${{ secrets.AWS_OIDC_ROLE_NAME }}
+          role-to-assume: ${{ secrets.AWS_OIDC_ROLE_ARN_DEPLOY }}
           aws-region: ${{ vars.AWS_REGION || secrets.AWS_REGION }}
           role-session-name: gha-deploy
 
