@@ -180,11 +180,13 @@ jobs:
           aws-region: ${{ vars.AWS_REGION || secrets.AWS_REGION }}
           role-session-name: gha-deploy
 
-      - name: Who am I (deploy role)
-        run: aws sts get-caller-identity
-
       - name: List deployments
         run: kubectl -n fastfood get deploy
+
+      - name: Validate access
+        run: |
+          kubectl version --short
+          kubectl get ns
 
       - name: Install kubectl
         run: |
@@ -199,8 +201,14 @@ jobs:
         run: |
           aws eks update-kubeconfig \
             --name "${{ secrets.EKS_CLUSTER_NAME }}" \
-            --region "${{ vars.AWS_REGION || secrets.AWS_REGION }}" \
-            --alias eks-cluster
+            --region "${{ secrets.AWS_REGION }}" \
+            --kubeconfig "$HOME/.kube/config"
+
+          echo "Current context:"
+          kubectl config current-context
+
+          echo "Cluster endpoint:"
+          kubectl config view --minify -o jsonpath='{.clusters[0].cluster.server}'; echo
 
       - name: Ensure namespace
         run: |
