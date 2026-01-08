@@ -180,6 +180,9 @@ jobs:
           aws-region: ${{ vars.AWS_REGION || secrets.AWS_REGION }}
           role-session-name: gha-deploy
 
+      - name: Who am I (deploy role)
+        run: aws sts get-caller-identity
+
       - name: Install kubectl
         run: |
           set -e
