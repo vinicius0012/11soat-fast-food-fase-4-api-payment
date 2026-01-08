@@ -171,6 +171,14 @@ jobs:
     permissions:
       id-token: write
       contents: read
+    env:
+      NAMESPACE: fastfood
+      APP_NAME: fastfood-app
+      CONTAINER_NAME: fastfood-app
+      AWS_REGION: ${{ vars.AWS_REGION || secrets.AWS_REGION }}
+      EKS_CLUSTER_NAME: ${{ secrets.EKS_CLUSTER_NAME }}
+      ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
+      VERSION: ${{ needs.semantic-release.outputs.new_tag }}
     steps:
       - uses: actions/checkout@v4
 
@@ -179,14 +187,6 @@ jobs:
           role-to-assume: ${{ secrets.AWS_OIDC_ROLE_ARN_DEPLOY }}
           aws-region: ${{ vars.AWS_REGION || secrets.AWS_REGION }}
           role-session-name: gha-deploy
-
-      - name: List deployments
-        run: kubectl -n fastfood get deploy
-
-      - name: Validate access
-        run: |
-          kubectl version --short
-          kubectl get ns
 
       - name: Install kubectl
         run: |
@@ -200,21 +200,65 @@ jobs:
       - name: Update kubeconfig
         run: |
           aws eks update-kubeconfig \
-            --name "${{ secrets.EKS_CLUSTER_NAME }}" \
-            --region "${{ secrets.AWS_REGION }}" \
+            --name "$EKS_CLUSTER_NAME" \
+            --region "$AWS_REGION" \
             --kubeconfig "$HOME/.kube/config"
 
-          echo "Current context:"
           kubectl config current-context
-
-          echo "Cluster endpoint:"
           kubectl config view --minify -o jsonpath='{.clusters[0].cluster.server}'; echo
 
       - name: Ensure namespace
         run: |
-          kubectl get namespace fastfood || kubectl create namespace fastfood
+          kubectl get namespace "$NAMESPACE" || kubectl create namespace "$NAMESPACE"
 
-      - name: Rollout restart
+      - name: Apply manifests (first deploy)
         run: |
-          kubectl -n fastfood rollout restart deployment/fastfood-app
-          kubectl -n fastfood get pods -o wide
+          if [ -z "$VERSION" ]; then VERSION="latest"; fi
+          IMAGE="$ECR_REPOSITORY:$VERSION"
+
+          cat <<EOF | kubectl apply -f -
+          apiVersion: apps/v1
+          kind: Deployment
+          metadata:
+            name: ${APP_NAME}
+            namespace: ${NAMESPACE}
+          spec:
+            replicas: 1
+            selector:
+              matchLabels:
+                app: ${APP_NAME}
+            template:
+              metadata:
+                labels:
+                  app: ${APP_NAME}
+              spec:
+                containers:
+                  - name: ${CONTAINER_NAME}
+                    image: ${IMAGE}
+                    imagePullPolicy: Always
+                    ports:
+                      - containerPort: 1337
+                    env:
+                      - name: NODE_ENV
+                        value: "production"
+          ---
+          apiVersion: v1
+          kind: Service
+          metadata:
+            name: ${APP_NAME}
+            namespace: ${NAMESPACE}
+          spec:
+            selector:
+              app: ${APP_NAME}
+            ports:
+              - name: http
+                port: 80
+                targetPort: 1337
+            type: ClusterIP
+          EOF
+
+      - name: Wait rollout
+        run: |
+          kubectl -n "$NAMESPACE" rollout status deployment/"$APP_NAME" --timeout=180s
+          kubectl -n "$NAMESPACE" get pods -o wide
+          kubectl -n "$NAMESPACE" get svc
